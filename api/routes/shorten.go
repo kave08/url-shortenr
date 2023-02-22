@@ -1,11 +1,13 @@
 package routes
 
 import (
+	"os"
 	"strconv"
 	"time"
 	"url-shortenr/database"
 	"url-shortenr/helpers"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
 )
@@ -36,7 +38,7 @@ func ShortenURL(c *fiber.Ctx) error {
 	defer rC.Close()
 	val, err := rC.Get(database.Ctx, c.IP()).Result()
 	if err == redis.Nil {
-		_ = rC.Set(database.Ctx, c.IP(), os.getenv("API_QUOTA"), 30*60*time.Second).Err()
+		_ = rC.Set(database.Ctx, c.IP(), os.Getenv("API_QUOTA"), 30*60*time.Second).Err()
 	} else {
 		val, _ = rC.Get(database.Ctx, c.IP()).Result()
 		valint, _ := strconv.Atoi(val)
@@ -51,7 +53,7 @@ func ShortenURL(c *fiber.Ctx) error {
 
 	//check if the err is an actual URL
 
-	if !govalidate.IsURL(body.URL) {
+	if !govalidator.IsURL(body.URL) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid URL"})
 	}
 
