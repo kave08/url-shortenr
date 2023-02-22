@@ -19,7 +19,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		return err
+		return
 	}
 
 	app.Use(logger.New())
